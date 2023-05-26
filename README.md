@@ -1,4 +1,4 @@
-# Estimation of eigenvalues
+# Estimation of eigenvalues for a graph on points with distance O(N)
 
 This is application for a university work.
 This file contains only the description of running the program.
