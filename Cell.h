@@ -11,14 +11,10 @@
 
 using namespace std;
 
-class Cell {
+struct Cell {
 public:
     int num;
     static int N;
-    static double R;
-    static vector<bool> c_incidences;
-
-    static long double (*metrics)(pair<long double, long double>, pair<long double, long double>);
 
     explicit Cell(int num) {
         this->num = num;
@@ -38,20 +34,14 @@ public:
 
     [[nodiscard]] int column() const;
 
-    static void get_incidences(int i, vector<bool> &incidences);
+    [[nodiscard]] pair<long double, long double> ld() const;
 
-private:
     [[nodiscard]] pair<long double, long double> lu() const;
 
     [[nodiscard]] pair<long double, long double> ru() const;
 
-    [[nodiscard]] pair<long double, long double> ld() const;
-
     [[nodiscard]] pair<long double, long double> rd() const;
 
-    static bool are_connected(const Cell &I, const Cell &J,
-                              long double (*metric)(pair<long double, long double>,
-                                                        pair<long double, long double>));
 };
 
 

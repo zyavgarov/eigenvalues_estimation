@@ -41,9 +41,10 @@ long double sc(const std::vector<long double> &v1, const std::vector<long double
     return result;
 }
 
-vector<double> launch_estimation(int first_num, int last_num, double R_denominator,
-                                 long double (*metric)(pair<long double, long double>, pair<long double, long double>),
-                                 const string &filename, bool print_progress) {
+
+vector<long double>
+launch_estimation(int first_num, int last_num, double R_denominator, const string &type, const string &p,
+                  const string &filename, bool print_progress) {
 
     /* launches estimation of eigenvalues of graph defined in work
      *
@@ -62,14 +63,12 @@ vector<double> launch_estimation(int first_num, int last_num, double R_denominat
      * It's made for easy separation of computations between different machines: computation takes a lot of time and a lot of RAM
      */
 
-    vector<double> eigenvalues(last_num, 0);
+    vector<long double> eigenvalues(last_num, 0);
     for (int N = first_num; N < last_num; ++N) {
 
         // matrix of incidence
-        Cell::c_incidences = vector<bool>(N * N, false);
         Cell::N = N;
-        Cell::R = N / R_denominator;
-        Cell::metrics = metric;
+        //Cell::metrics = type;
         vector<vector<long double>> M(N * N, vector<long double>(N * N));
         int d = 0; // degree of graph
 
@@ -82,13 +81,15 @@ vector<double> launch_estimation(int first_num, int last_num, double R_denominat
 
         bool change_N = false;
 
+        Incidence_func inc(type, p, R_denominator);
         for (int i = 0; i < N * N; ++i) {
             vector<bool> s(N * N, false);
-            Cell::get_incidences(i, s);
+            Incidence_func::get_incidences(i, s);
             for (int j = 0; j < N * N; ++j) {
                 M[i][j] = (long double) (s[j]);
             }
         }
+
         for (long double i: M[0]) {
             d += (int) i;
         }
@@ -161,7 +162,7 @@ vector<double> launch_estimation(int first_num, int last_num, double R_denominat
     }
     if (!filename.empty()) {
         ofstream output(filename);
-        for (double eigenvalue: eigenvalues) {
+        for (long double eigenvalue: eigenvalues) {
             output << eigenvalue << endl;
         }
     }
