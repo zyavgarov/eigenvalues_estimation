@@ -10,15 +10,18 @@ long double (*Incidence_func::Metric::metric)(pair<long double, long double>, pa
 
 int Incidence_func::radius;
 vector<bool> Incidence_func::c_incidences;
+long double Incidence_func::Metric::metric_param;
+
+long double (*Incidence_func::Discrete::metric)(pair<long double, long double>, pair<long double, long double>);
 
 Incidence_func::Metric::Metric(const string &p) {
     if (p == "infinity") {
-        //Incidence_func::are_connected = &Metric::are_connected;
         metric = &Metric::l_infty;
-    } else if (stoi(p) == 2) {
-        metric = &Metric::l_2;
-    } else if (stoi(p) == 1) {
-        metric = &Metric::l_1;
+    } else if (p == "r_6") {
+        metric = &Metric::r_6;
+    } else {
+        metric = &Metric::l;
+        metric_param = stod(p);
     }
 }
 
@@ -64,12 +67,31 @@ long double Incidence_func::Metric::l_infty(pair<long double, long double> a, pa
     return max(abs(a.first - b.first), abs(a.second - b.second));
 }
 
-long double Incidence_func::Metric::l_2(pair<long double, long double> a, pair<long double, long double> b) {
-    return sqrt((a.first - b.first) * (a.first - b.first) + (a.second - b.second) * (a.second - b.second));
+long double Incidence_func::Metric::r_6(pair<long double, long double> a, pair<long double, long double> b) {
+    // the metric chooses the shortest way if allowed directions are sides of equal sided triangle
+    long double x = b.first - a.first;
+    long double y = b.second - a.second;
+    // determinantion of the phi of vector
+    if (x == 0 && y == 0) {
+        return 0;
+    }
+    long double phi = atan2(y, x);
+    if ((phi > -M_PI && phi <= -2 * M_PI / 3) || (phi > 0 && phi <= M_PI / 3)) {
+        pair<long double, long double> a_12 = pair<long double, long double>(x - y / sqrtl(3), 2 * y / sqrtl(3));
+        return abs(a_12.first) + abs(a_12.second);
+    } else if ((phi > -2 * M_PI / 3 && phi <= -M_PI / 3) || (phi >= M_PI / 3 && phi < 2 * M_PI / 3)) {
+        pair<long double, long double> a_23 = pair<long double, long double>(x + y / sqrtl(3), y / sqrtl(3) - x);
+        return abs(a_23.first) + abs(a_23.second);
+    } else if ((phi > -M_PI / 3 && phi <= 0) || (phi > 2 * M_PI / 3 && phi <= M_PI)) {
+        pair<long double, long double> a_13 = pair<long double, long double>(x + y / sqrtl(3), 2 * y / sqrtl(3));
+        return abs(a_13.first) + abs(a_13.second);
+    }
+    return -1;
 }
 
-long double Incidence_func::Metric::l_1(pair<long double, long double> a, pair<long double, long double> b) {
-    return abs(a.first - b.first) + abs(a.second - b.second);
+long double Incidence_func::Metric::l(pair<long double, long double> a, pair<long double, long double> b) {
+    return pow(pow(abs(a.first - b.first), metric_param) + pow(abs(a.second - b.second), metric_param),
+               1 / metric_param);
 }
 
 Incidence_func::Incidence_func(const string &type, const string &p, double R_denominator) {
@@ -79,17 +101,16 @@ Incidence_func::Incidence_func(const string &type, const string &p, double R_den
         if (p == "infinity") {
             auto l_infty = Metric(p);
             are_connected = Incidence_func::Metric::are_connected;
-        } else if (stoi(p) == 2) {
-            auto l_2 = Metric(p);
-            are_connected = Incidence_func::Metric::are_connected;
-        } else if (stoi(p) == 1) {
-            auto l_1 = Metric(p);
+        } else if (p == "r_6") {
+            auto r_6 = Metric(p);
             are_connected = Incidence_func::Metric::are_connected;
         } else {
-            cout << "Incorrect p" << endl;
+            auto l = Metric(p);
+            are_connected = Incidence_func::Metric::are_connected;
         }
     } else if (type == "discrete") {
-        //tbd
+        auto discrete = Discrete(p);
+        are_connected = Incidence_func::Discrete::are_connected;
     } else {
         cout << "Incorrect type" << endl;
     }
@@ -112,4 +133,23 @@ void Incidence_func::get_incidences(int i, vector<bool> &incidences) {
     for (int j = 0; j < incidences.size(); ++j) {
         incidences[(j + shift + Cell::N * Cell::N) % (Cell::N * Cell::N)] = c_incidences[j];
     }
+}
+
+Incidence_func::Discrete::Discrete(const string &p) {
+    if (p == "infinity") {
+        metric = &Metric::l_infty;
+    } else if (p == "r_6") {
+        metric = &Metric::r_6;
+    } else {
+        Metric::metric_param = stod(p);
+        metric = &Metric::l;
+    }
+}
+
+bool Incidence_func::Discrete::are_connected(const Cell &I, const Cell &J) {
+    long double dist = round((*metric)(I.ld(), J.ld()));
+    if (dist == radius) {
+        return true;
+    }
+    return false;
 }

@@ -12,10 +12,16 @@ Compilation: `g++ main.cpp Cell.cpp launcher.cpp -o main.exe `
 Running on Windows: `./main.exe`
 
 By default, the results are saved to 4 files:
-- `eigenalues_1.txt` (l_1 metrics with N/10)
-- `eigenalues_infty.txt` (l_infinity metrics with N/10)
-- `eigenalues_2_10.txt` (l_2 metrics with N/10)
-- `eigenalues_2_2.txt` (l_2 metrics with N/2)
+- `eigenalues_m_1.txt` (l_1 metrics with N/10)
+- `eigenalues_m_2_2.txt` (l_2 metrics with N/2)
+- `eigenalues_m_2_10.txt` (l_2 metrics with N/10)
+- `eigenalues_m_infty.txt` (l_infinity metrics with N/10)
+- `eigenalues_m_r.txt` (r_6 metrics with N/10)
+- `eigenalues_d_1.txt` (l_1 metrics with N/10)
+- `eigenalues_d_2_2.txt` (l_2 metrics with N/2)
+- `eigenalues_d_2_10.txt` (l_2 metrics with N/10)
+- `eigenalues_d_infty.txt` (l_infinity metrics with N/10)
+- `eigenalues_d_r.txt` (r_6 metrics with N/10)
 
 However, editing of main.cpp and recompilation can give an opportunity for different calculations.
 Instructions for such editing can be found in main.cpp

@@ -41,7 +41,6 @@ long double sc(const std::vector<long double> &v1, const std::vector<long double
     return result;
 }
 
-
 vector<long double>
 launch_estimation(int first_num, int last_num, double R_denominator, const string &type, const string &p,
                   const string &filename, bool print_progress) {
